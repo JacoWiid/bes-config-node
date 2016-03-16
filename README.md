@@ -26,9 +26,9 @@ The directory structure for deployment is as follows:
 2. node_modules/*  <-- Locally installed Node modules (created by install script)
 3. public/*  <-- Images and other content requested by the web pages
 4. roms/*  <-- Directories of ROMs (gb, nes, snes), or link to it
-5. server.js*  <-- The web server and database access logic
+5. server.js  <-- The web server and database access logic
 6. static/*  <-- Static pieces of the web pages of the interface
-7. uploads/*  <-- Temporary directory used during ROM uploads
+7. uploads/  <-- Temporary directory used during ROM uploads
 
 Included is a dummy games.db to let you try out the interface. The database
 tables schemas are created with the following sqlite shell commands:
