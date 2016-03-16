@@ -1,0 +1,331 @@
+<script>
+
+function refreshRomList(platform)
+{
+  var sendString = "{ \"platform\":\"";
+  var platformSelect;
+
+  if (platform == 0) {
+    platformSelect = document.getElementById('filenameSNES');
+    sendString += "1";
+  } else if (platform == 1) {
+    platformSelect = document.getElementById('filenameNES');
+    sendString += "3";
+  } else if (platform == 2) {
+    platformSelect = document.getElementById('filenameGBA');
+    sendString += "2";
+  } else {
+    platformSelect = document.getElementById('filenameGBC');
+    sendString += "4";
+  }
+  sendString += "\" }";
+
+  /* Empty the select for the current platform */
+  while (platformSelect.options.length > 0)
+    platformSelect.remove(0);
+
+  /* Request a new list from the server */
+  $.ajax({
+    contentType: 'application/json',
+    data: sendString,
+    dataType: 'json',
+    success: function(data) {
+      $.each(data, function(key, val) {
+        if (key != '')
+        {
+          var option = document.createElement("option");
+          option.text = val;
+          platformSelect.add(option);
+        }
+      }); /* $.each */
+    },
+    error: function() {},
+    processData: false,
+    type: 'POST',
+    url: 'arRefreshList'
+  }); /* $.ajax */
+
+}
+
+function onLoadPage() 
+{
+  updateDiskStats();
+  document.getElementById('type').selectedIndex = 0;
+  onTypeChange(0);
+}
+
+function onAddChange()
+{
+  if (document.getElementById('AddRomFile').value != "")
+    document.getElementById('Add').disabled = false;
+  else
+    document.getElementById('Add').disabled = true;
+}
+
+function onAddSubmit()
+{
+  var test = document.getElementById('type');
+  var xhr = new XMLHttpRequest();
+  var files = document.getElementById('AddRomFile').files;
+  var formData = new FormData();
+  var index;
+  var i = 0;
+  
+//  for (i = 0; i < files.length; i++) {
+  alert("files[0]: " + files[0].name);
+    formData.append("romFile", files[0], files[0].name);
+//  }
+
+  if (test.selectedIndex == 0) {
+    formData.append("Platform", "1");
+    romSelect = document.getElementById('filenameSNES');
+  } else if (test.selectedIndex == 1) {
+    formData.append("Platform", "3");
+    romSelect = document.getElementById('filenameNES');
+  } else if (test.selectedIndex == 2) {
+    formData.append("Platform", "2");
+    romSelect = document.getElementById('filenameGBA');
+  } else if (test.selectedIndex == 3) {
+    formData.append("Platform", "4");
+    romSelect = document.getElementById('filenameGBC');
+  }
+
+  var xhr = new XMLHttpRequest();
+  xhr.open('POST', 'arAddROM', false);
+  xhr.send(formData);
+
+  updateDiskStats();
+  document.getElementById('Add').disabled = true;
+  refreshRomList(test.selectedIndex);
+}
+
+function onRemoveChange()
+{
+  var test = document.getElementById('type');
+  var romSelect;
+
+  if (test.selectedIndex == 0) {
+    romSelect = document.getElementById('filenameSNES');
+  } else if (test.selectedIndex == 1) {
+    romSelect = document.getElementById('filenameNES');
+  } else if (test.selectedIndex == 2) {
+    romSelect = document.getElementById('filenameGBA');
+  } else if (test.selectedIndex == 3) {
+    romSelect = document.getElementById('filenameGBC');
+  }
+
+  if (romSelect.value != "")
+    document.getElementById('Remove').disabled = false;
+  else
+    document.getElementById('Remove').disabled = true;
+}
+
+function onRemoveSubmit()
+{
+  var test = document.getElementById('type');
+  var sendString = "{ \"Platform\":\"";
+  var myPlatform;
+  var romSelect;
+  var index;
+
+alert("onRemove()");
+
+
+  if (test.selectedIndex == 0) {
+    sendString += "1";
+    romSelect = document.getElementById('filenameSNES');
+  } else if (test.selectedIndex == 1) {
+    sendString += "3";
+    romSelect = document.getElementById('filenameNES');
+  } else if (test.selectedIndex == 2) {
+    sendString += "2";
+    romSelect = document.getElementById('filenameGBA');
+  } else if (test.selectedIndex == 3) {
+    sendString += "4";
+    romSelect = document.getElementById('filenameGBC');
+  }
+  sendString += "\", \"RomFile\":\"";
+  sendString += romSelect.options[romSelect.selectedIndex].text;
+  sendString += "\" }";
+
+  alert(sendString);
+
+  /* Request the ROM be removed and the database updated */
+  $.ajax({
+    contentType: 'application/json',
+    data: sendString,
+    dataType: 'json',
+    success: function(data) {},
+    error: function() {},
+    processData: false,
+    type: 'POST',
+    url: 'arRemoveROM'
+  }); /* $.ajax */
+
+  updateDiskStats();
+  document.getElementById('Remove').disabled = true;
+  refreshRomList(test.selectedIndex);
+}
+
+function onTypeChange()
+{
+  var test = document.getElementById('type');
+
+  document.getElementById("divFilenameSNES").style="display: none;";
+  document.getElementById("divFilenameGBA").style="display: none;";
+  document.getElementById("divFilenameNES").style="display: none;";
+  document.getElementById("divFilenameGBC").style="display: none;";
+
+  iconFrame = test.selectedIndex;
+  if (test.selectedIndex == 0) {
+    document.getElementById("divFilenameSNES").style="display: inline;";
+    document.getElementById("AddRomFile").accept=".sfc, .smc";
+  } else if (test.selectedIndex == 1) {
+    document.getElementById("divFilenameNES").style="display: inline;";
+    document.getElementById("AddRomFile").accept=".nes";
+  } else if (test.selectedIndex == 2) {
+    document.getElementById("divFilenameGBA").style="display: inline;";
+    document.getElementById("AddRomFile").accept=".gba";
+  } else {
+    document.getElementById("divFilenameGBC").style="display: inline;";
+    document.getElementById("AddRomFile").accept=".gb, .gbc";
+  }
+
+  refreshRomList(test.selectedIndex);
+
+  document.getElementById("filenameSNES").selectedIndex="-1";
+  document.getElementById("filenameNES").selectedIndex="-1";
+  document.getElementById("filenameGBA").selectedIndex="-1";
+  document.getElementById("filenameGBC").selectedIndex="-1";
+
+  document.getElementById('Add').disabled = true;
+  document.getElementById('Remove').disabled = true;
+}
+
+function updateDiskStats()
+{
+  var canvas = document.getElementById('diskStatCanvas');
+  var ctx = canvas.getContext('2d');
+  var freeSize = 0;
+  var totalSize = 1;
+  var ratioRaw = 0.0;
+  var percentageText = "";
+  var usageText = "Remaining Storage Space Available On System: ";
+
+  /* Constants for size of disk stats */
+  var widthOfStats = document.getElementById('columnA_columnless').offsetWidth;
+  var heightOfStats = 75;
+  var padding = 10; 
+  var barHeight = 30;
+
+  canvas.width = widthOfStats;
+  ctx.fillStyle = '#202020';
+  ctx.fillRect(0, 0, widthOfStats, heightOfStats);
+  ctx.fillStyle = '#000000';
+  ctx.fillRect(padding, heightOfStats - padding - barHeight, 
+    widthOfStats - (padding * 2), barHeight);
+  ctx.font = 'bold 12px Sans';
+
+  /* Request a new list from the server */
+  $.ajax({
+    contentType: 'application/json',
+    data: "",
+    dataType: 'json',
+    success: function(data) {
+      $.each(data, function(key, val) {
+        if (key == 'FreeSize')
+          freeSize = val;
+        else if (key == 'TotalSize')
+          totalSize = val;
+      }); /* $.each */
+
+      usageText += Math.floor(freeSize / (1024 * 1024)) + " MB";
+
+      ctx.fillStyle = '#000000';
+      ctx.fillText(usageText, 11, 21);
+      ctx.fillStyle = '#FFFFFF';
+      ctx.fillText(usageText, 10, 20);
+
+      ratioRaw = (totalSize - freeSize) / totalSize;
+      percentageText = Math.floor(ratioRaw * 100) + "%";
+
+      ctx.fillStyle = '#1E517C';
+      ctx.fillRect(padding + 2, heightOfStats - padding - barHeight + 2,
+        (widthOfStats - (padding * 2) - 4) * ratioRaw, barHeight - 4);
+
+      ctx.fillStyle = '#000000';
+      ctx.fillText(percentageText, (widthOfStats / 2) - 10, 
+        (heightOfStats - barHeight - padding) + 21);
+      ctx.fillStyle = '#FFFFFF';
+      ctx.fillText(percentageText, (widthOfStats / 2) - 11,
+        (heightOfStats - barHeight - padding) + 20);
+    },
+    error: function() {
+      usageText += "UNKNOWN";
+
+      ctx.fillStyle = '#000000';
+      ctx.fillText(usageText, 11, 21);
+      ctx.fillStyle = '#FFFFFF';
+      ctx.fillText(usageText, 10, 20);
+    },
+    processData: false,
+    type: 'POST',
+    url: 'arRequestUsage'
+  }); /* $.ajax */
+
+}
+
+</script>
+
+<div id="main">
+  <div id="main_inner" class="fluid">
+    <div id="primaryContent_columnless">
+      <div id="columnA_columnless">
+
+        <h3><a id="OVERVIEW"></a>Add Or Remove ROMs</h3>
+
+<canvas id="diskStatCanvas" width="600" height="75"></canvas>
+
+<p><center><hr></center><br>
+<b>Step #1:</b> Select the game console whose ROMs you want to add/remove:<br>
+
+    Console: &nbsp;<select id="type" onchange="onTypeChange()">
+      <option>Super Nintendo/Super Famicom</option>
+      <option>Nintendo/Famicom</option>
+      <option>Gameboy Advance</option>
+      <option>Gameboy/Gameboy Color</option>
+    </select>
+
+<br><br><hr><br>
+<b>Step #2:</b> Do one of the following:<br><br>
+<table><tr>
+  <td valign="top"><div style="padding:10px">
+
+<b>Add a ROM</b> for this platform by selecting a ROM file to upload and then clicking the <b>&quot;Add This ROM!&quot;</b> button to install it.<br>
+
+<br>ROM to add:<br><input type="file" id="AddRomFile" onchange="onAddChange()"><br><br><br><br><button id="Add" onclick="onAddSubmit()">Add This ROM!</button>
+
+  </div></td>
+  <td bgcolor="#3f3f3f">&nbsp;</td>
+  <td valign="top"><div style="padding:10px"><b>Remove a ROM</b> by selecting a ROM file from the list of currently installed ROMs for this platform and then clicking the <b>&quot;Remove This ROM!&quot;</b> button.<br><br>
+ROM to remove:<br>
+<div id="divFilenameSNES" style="display: none;">
+<select id="filenameSNES" size="5" style="width: 200px" onclick="onRemoveChange()"></select></div>
+
+<div id="divFilenameNES" style="display: none;">
+<select id="filenameNES" size="5" style="width: 200px" onclick="onRemoveChange()"></select></div>
+
+<div id="divFilenameGBA" style="display: none;">
+<select id="filenameGBA" size="5" style="width: 200px" onclick="onRemoveChange()"></select></div>
+
+<div id="divFilenameGBC" style="display: none;">
+<select id="filenameGBC" size="5" style="width: 200px" onclick="onRemoveChange()"></select></div>
+
+<br><br><button id="Remove" onclick="onRemoveSubmit()">Remove This ROM!</button></div></td>
+</tr></table>
+
+      </div>
+    </div>
+  </div>
+</div>
+

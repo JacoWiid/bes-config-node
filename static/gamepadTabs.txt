@@ -1,0 +1,17 @@
+<body onload="onLoadPage()">
+
+<div id="header">
+  <div id="header_inner" class="fluid">
+    <div id="logo">
+      <h1><span><img src="bes_logo_trans.png"></span></h1>
+    </div>		
+    <div id="menu">
+      <ul>
+        <li><a href="./add_remove.html">Click Here To<br>Add/Remove<br>Game ROMs</a></li>
+        <li><a href="./edit.html">Click Here To<br>Edit Game<br>Information</a></li>
+        <li><a href="./gamepad.html" class="active">Click Here To<br>Configure Your<br>Controllers</a></li>
+      </ul>
+    </div>	
+  </div>
+</div>
+

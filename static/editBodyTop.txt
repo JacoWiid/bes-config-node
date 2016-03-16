@@ -1,0 +1,19 @@
+<div id="main">
+  <div id="main_inner" class="fluid">
+    <div id="primaryContent_columnless">
+      <div id="columnA_columnless">
+
+        <h3><a id="OVERVIEW"></a>Edit Game ROM Information</h3>
+<p>Select an uploaded ROM file and enter the information that describes the ROM. A preview of the ROM information, as shown in the BES GUI, is shown on the right.<br><hr></p>
+
+<div class="container" width=800>
+<table><tr><td style="vertical-align:top"><div style="padding:10px;">
+<b>Step #1:</b> Select a game ROM entry to edit.<br><br>
+  <form>
+    Platform: <select id="type" onchange="onTypeChange()">
+      <option>Super Nintendo/Super Famicom</option>
+      <option>Nintendo/Famicom</option>
+      <option>Gameboy Advance</option>
+      <option>Gameboy/Gameboy Color</option>
+    </select><br><br>
+    <table><tr><td>ROM Filename:</td><td> 

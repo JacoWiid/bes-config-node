@@ -1,0 +1,7 @@
+<div id="footer" class="fluid">
+        Copyright &copy; 2015 <a href="mailto:hendersa (at) icculus.org">Andrew Henderson</a>. All rights reserved. Design by <a href="http://www.nodethirtythree.com/">NodeThirtyThree Design</a>.
+</div>
+
+</body>
+</html>
+

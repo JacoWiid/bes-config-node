@@ -1,0 +1,407 @@
+</td></tr></table>
+
+<br><br><hr><br>
+<b>Step #2:</b> Edit the fields for the ROM entry.<br><br>
+    Menu Game Title: <input type="text" id="title" oninput="inputUpdate()"><br>
+    Description Line #1: <input type="text" size=20 id="desc1" oninput="inputUpdate()"><br>
+    Description Line #2: <input type="text" size=20 id="desc2" oninput="inputUpdate()"><br>
+    Description Line #3: <input type="text" size=20 id="desc3" oninput="inputUpdate()"><br>
+    Description Line #4: <input type="text" size=20 id="desc4" oninput="inputUpdate()"><br>
+    Description Line #5: <input type="text" size=20 id="desc5" oninput="inputUpdate()"><br>
+    Release Date: <input type="text" maxsize="4" size="4" id="release" oninput="inputUpdate()"><br>
+
+    Genre #1: <select id="genre1" onchange="inputUpdate()">
+      <option value="None" selected="selected">None</option>
+      <option value="Action">Action</option>
+      <option value="Arcade">Arcade</option>
+      <option value="Fantasy">Fantasy</option>
+      <option value="Fighting">Fighting</option>
+      <option value="Flight">Flight</option>
+      <option value="Platformer">Platformer</option>
+      <option value="RPG">RPG</option>
+      <option value="Run and Gun">Run and Gun</option>
+      <option value="Sci-Fi">Sci-Fi</option>
+      <option value="Simulation">Simulation</option>
+      <option value="Sport">Sport</option>
+      <option value="Strategy">Strategy</option>
+      <option value="Tactics">Tactics</option>
+    </select>
+
+    Genre #2: <select id="genre2" disabled=disabled onchange="inputUpdate()">
+      <option value="None" selected="selected">None</option>
+      <option value="Action">Action</option>
+      <option value="Arcade">Arcade</option>
+      <option value="Fantasy">Fantasy</option>
+      <option value="Fighting">Fighting</option>
+      <option value="Flight">Flight</option>
+      <option value="Platformer">Platformer</option>
+      <option value="RPG">RPG</option>
+      <option value="Run and Gun">Run and Gun</option>
+      <option value="Sci-Fi">Sci-Fi</option>
+      <option value="Simulation">Simulation</option>
+      <option value="Sport">Sport</option>
+      <option value="Strategy">Strategy</option>
+      <option value="Tactics">Tactics</option>
+    </select>
+<br><br>
+    <button id="submitButton" type="button" onclick="onSubmitButton()">Submit Changes</button>
+  </form>
+</div></td>
+<td bgcolor="#3f3f3f">&nbsp;</td>
+<td><div style="padding:10px">
+<b>Game List Preview</b><br>
+<canvas id="listCanvas" width="290" height="34"></canvas><br>
+<b>Game Info Preview</b><br>
+<canvas id="previewCanvas" width="370" height="365"></canvas>
+<script>
+var canvas1 = document.getElementById('previewCanvas');
+var ctx1 = canvas1.getContext('2d');
+var canvas2 = document.getElementById('listCanvas');
+var ctx2 = canvas2.getContext('2d');
+var iconImg = new Image();
+var iconFrame = 1;
+var boxImg = new Image();
+
+function onSubmitButton()
+{
+  var test = document.getElementById('type');
+  var sendString = "{ \"Platform\":\"";
+  var myPlatform;
+  var romSelect;
+  var index;
+
+  document.getElementById('submitButton').disabled = true;
+
+  if (test.selectedIndex == 0) {
+    sendString += "1"; 
+    romSelect = document.getElementById('filenameSNES');
+  } else if (test.selectedIndex == 1) {
+    sendString += "3";    
+    romSelect = document.getElementById('filenameNES');
+  } else if (test.selectedIndex == 2) {
+    sendString += "2";
+    romSelect = document.getElementById('filenameGBA');
+  } else if (test.selectedIndex == 3) {
+    sendString += "4";
+    romSelect = document.getElementById('filenameGBC');
+  }
+
+  sendString += "\", \"RomFile\":\"";
+  sendString += romSelect.options[romSelect.selectedIndex].text;
+  sendString += "\", \"GameTitle\":\"";
+  sendString += document.getElementById('title').value; 
+  sendString += "\", \"InfoText0\":\"";
+  sendString += document.getElementById('desc1').value;
+  sendString += "\", \"InfoText1\":\"";
+  sendString += document.getElementById('desc2').value;
+  sendString += "\", \"InfoText2\":\"";
+  sendString += document.getElementById('desc3').value;
+  sendString += "\", \"InfoText3\":\"";
+  sendString += document.getElementById('desc4').value;
+  sendString += "\", \"InfoText4\":\"";
+  sendString += document.getElementById('desc5').value; 
+  sendString += "\", \"DateText\":\"";
+  sendString += document.getElementById('release').value;
+  sendString += "\", \"Genre0\":\"";
+  if (document.getElementById('genre1').value != "None")
+    sendString += document.getElementById('genre1').value;
+  sendString += "\", \"Genre1\":\"";
+  if (document.getElementById('genre2').value != "None")
+    sendString += document.getElementById('genre2').value;
+  sendString += "\"}";
+
+  $.ajax({
+    contentType: 'application/json',
+    data: sendString,
+    dataType: 'json',
+    success: function(data) {
+
+      $.each(data, function(key, val) {
+      }); /* $.each() */
+    },
+    error: function() {},
+    processData: false,
+    type: 'POST',
+    url: 'editSubmitData'
+  }); /* end $.ajax() */
+}
+
+function inputUpdate()
+{
+  document.getElementById('submitButton').disabled = false;
+  renderPreview();
+}
+
+function mapGenreToIndex(genre)
+{
+  var index = 0;
+
+  if (genre == "Action")
+    index = 1;
+  else if (genre == "Arcade")
+    index = 2;
+  else if (genre == "Fantasy")
+    index = 3;
+  else if (genre == "Fighting")
+    index = 4;
+  else if (genre == "Flight")
+    index = 5;
+  else if (genre == "Platformer")
+    index = 6;
+  else if (genre == "RPG")
+    index = 7;
+  else if (genre == "Run and Gun")
+    index = 8;
+  else if (genre == "Sci-Fi")
+    index = 9;
+  else if (genre == "Simulation")
+    index = 10;
+  else if (genre == "Sport")
+    index = 11;
+  else if (genre == "Strategy")
+    index = 12;
+  else if (genre == "Tactics")
+    index = 13;
+
+  return index;
+} /* end mapGenreToIndex() */
+
+function onChangeRomFilename()
+{
+  var test = document.getElementById('type');
+  var sendString = "{ \"platform\":\"";
+  var myPlatform;
+  var romSelect;
+  var index;
+
+  if (test.selectedIndex == 0) {
+    sendString += "1";
+    romSelect = document.getElementById('filenameSNES');
+  } else if (test.selectedIndex == 1) {
+    sendString += "3";
+    romSelect = document.getElementById('filenameNES');
+  } else if (test.selectedIndex == 2) {
+    sendString += "2";
+    romSelect = document.getElementById('filenameGBA');
+  } else if (test.selectedIndex == 3) {
+    sendString += "4";
+    romSelect = document.getElementById('filenameGBC');
+  }
+
+  sendString += "\", \"filename\":\"";
+  sendString += romSelect.options[romSelect.selectedIndex].text;
+  sendString += "\" }";
+
+  $.ajax({
+    contentType: 'application/json',
+    data: sendString,
+    dataType: 'json',
+    success: function(data) {
+
+      $.each(data, function(key, val) {
+        if (key == 'GameTitle') {
+          document.getElementById('title').value = val;
+        } else if (key == 'RomFile') {
+          // Nothing, we already know this
+        } else if (key == 'InfoText0') {
+          document.getElementById('desc1').value = val;
+        } else if (key == 'InfoText1') {
+          document.getElementById('desc2').value = val;
+        } else if (key == 'InfoText2') {
+          document.getElementById('desc3').value = val;
+        } else if (key == 'InfoText3') {
+          document.getElementById('desc4').value = val;
+        } else if (key == 'InfoText4') {
+          document.getElementById('desc5').value = val;
+        } else if (key == 'DateText') {
+          document.getElementById('release').value = val;
+        } else if (key == 'Genre0') {
+          index = mapGenreToIndex(val);
+          document.getElementById('genre1').selectedIndex = index;
+        } else if (key == 'Genre1') {
+          index = mapGenreToIndex(val);
+          document.getElementById('genre2').selectedIndex = index;
+        } else if (key == 'Platform') {
+          // Nothing, we already know this 
+        }
+      }); /* $.each() */
+
+      renderPreview();
+      document.getElementById('genre1').disabled = false;
+      document.getElementById('genre2').diabled = false;
+      document.getElementById('title').disabled = false;
+      document.getElementById('desc1').disabled = false;
+      document.getElementById('desc2').disabled = false;
+      document.getElementById('desc3').disabled = false;
+      document.getElementById('desc4').disabled = false;
+      document.getElementById('desc5').disabled = false;
+      document.getElementById('release').disabled = false;
+      document.getElementById('submitButton').disabled = true;
+
+    },
+    error: function() {},
+    processData: false,
+    type: 'POST',
+    url: 'editGetData'
+  }); /* end $.ajax() */
+} /* end onChangeRomFilename() */
+
+function onLoadPage()
+{
+  var test = document.getElementById('type');
+
+  document.getElementById('genre1').disabled = true;
+  document.getElementById('genre2').diabled = true;
+  document.getElementById('title').disabled = true;
+  document.getElementById('desc1').disabled = true;
+  document.getElementById('desc2').disabled = true;
+  document.getElementById('desc3').disabled = true;
+  document.getElementById('desc4').disabled = true;
+  document.getElementById('desc5').disabled = true;
+  document.getElementById('release').disabled = true;
+  document.getElementById('submitButton').disabled = true;
+
+  document.getElementById('type').selectedIndex = 0;
+  onTypeChange();
+} /* end onLoadPage() */
+
+function onTypeChange()
+{
+  var test = document.getElementById('type');
+
+  document.getElementById("divFilenameSNES").style="display: none;";
+  document.getElementById("divFilenameNES").style="display: none;";
+  document.getElementById("divFilenameGBA").style="display: none;";
+  document.getElementById("divFilenameGBC").style="display: none;";
+
+  if (test.selectedIndex == 0) {
+    iconFrame = 0;
+    document.getElementById("divFilenameSNES").style="display: inline;";
+  } else if (test.selectedIndex == 1) {
+    iconFrame = 1;
+    document.getElementById("divFilenameNES").style="display: inline;";
+  } else if (test.selectedIndex == 2) {
+    iconFrame = 2;
+    document.getElementById("divFilenameGBA").style="display: inline;";
+  } else {
+    iconFrame = 3;
+    document.getElementById("divFilenameGBC").style="display: inline;";
+  }
+
+  document.getElementById("filenameSNES").selectedIndex="-1";
+  document.getElementById("filenameNES").selectedIndex="-1";
+  document.getElementById("filenameGBA").selectedIndex="-1";
+  document.getElementById("filenameGBC").selectedIndex="-1";
+
+  document.getElementById('genre1').disabled = true;
+  document.getElementById('genre2').diabled = true;
+  document.getElementById('title').disabled = true;
+  document.getElementById('desc1').disabled = true;
+  document.getElementById('desc2').disabled = true;
+  document.getElementById('desc3').disabled = true;
+  document.getElementById('desc4').disabled = true;
+  document.getElementById('desc5').disabled = true;
+  document.getElementById('release').disabled = true;
+  document.getElementById('submitButton').disabled = true;
+
+  document.getElementById('genre1').selectedIndex = 0;
+  document.getElementById('genre2').selectedIndex = 0;
+  document.getElementById('title').value = "";
+  document.getElementById('desc1').value = "";
+  document.getElementById('desc2').value = "";
+  document.getElementById('desc3').value = "";
+  document.getElementById('desc4').value = "";
+  document.getElementById('desc5').value = "";
+  document.getElementById('release').value = "19XX";
+
+  renderPreview();
+}
+
+iconImg.src = 'icons.png';
+iconImg.onload = function() {
+  ctx2.drawImage(iconImg,(32 * iconFrame), 0, 32, 32, 0, 0, 32, 32);
+} 
+
+boxImg.src = 'blank_box.png';
+boxImg.onload = function() {
+  ctx1.drawImage(boxImg, 15, 50);
+}
+
+ctx1.rect(0, 0, 370, 365);
+ctx2.rect(0, 0, 290, 34);
+renderPreview();
+
+function renderPreview()
+{
+  var title = document.getElementById('title').value;
+  var desc1 = document.getElementById('desc1').value;
+  var desc2 = document.getElementById('desc2').value;
+  var desc3 = document.getElementById('desc3').value;
+  var desc4 = document.getElementById('desc4').value;
+  var desc5 = document.getElementById('desc5').value;
+  var release = document.getElementById('release').value;
+  var genre = "";
+  var genreElement;
+
+  if (release.length != 4) release = '19XX';
+  genreElement = document.getElementById('genre1').value;
+  if (genreElement == 'None')
+  {
+    genre = genreElement;
+    document.getElementById('genre2').disabled = true;
+  }
+  else 
+  {
+    document.getElementById('genre2').disabled = false;
+    genre = genreElement;
+    genreElement = document.getElementById('genre2').value;
+    if ((genreElement != 'None') && (genreElement != genre))
+    {
+      genre += '/';
+      genre += genreElement;
+    }
+  }
+
+  ctx2.fillStyle = '#000000';
+  ctx2.fill();
+  ctx1.fillStyle = '#202020';
+  ctx1.fill();
+  ctx1.font = 'bold 12px Sans';
+  ctx1.fillStyle = '#C0C0C0';
+  ctx1.fillText('GENRE:', 15, 360);
+  ctx1.fillText('RELEASE DATE:', 15, 340);
+  ctx2.font = '25px Sans';
+  ctx2.fillStyle = '#FFFFFF';
+
+  // Draw the Game List preview
+  ctx2.fillText(title, 42, 26);
+  ctx2.drawImage(iconImg,(32 * iconFrame), 0, 32, 32, 
+    0, 0, 32, 32);
+
+  // Draw the Game Info preview
+  ctx1.font = '30px Sans';
+  ctx1.fillText(title, 18, 35);
+  ctx1.font = '16px Sans';
+  ctx1.fillText(desc1, 15, 226);
+  ctx1.fillText(desc2, 15, 246);
+  ctx1.fillText(desc3, 15, 266);
+  ctx1.fillText(desc4, 15, 286);
+  ctx1.fillText(desc5, 15, 306);
+  ctx1.drawImage(boxImg, 15, 50);
+
+  ctx1.fillText(release, 130, 340);
+  ctx1.fillText(genre, 130, 360);
+} /* end renderPreview() */
+
+</script>
+
+</div></td>
+</tr></table>
+</div>
+
+ 
+      </div>
+    </div>
+  </div>
+</div>
+

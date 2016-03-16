@@ -1,0 +1,21 @@
+{
+  "name": "bes-config-node",
+  "version": "1.0.0",
+  "description": "Configuration GUI for the Beagle Entertainment System",
+  "main": "server.js",
+  "dependencies": {
+    "body-parser": "^1.15.0",
+    "diskspace": "^1.0.2",
+    "express": "^4.13.4",
+    "multer": "^1.1.0",
+    "sqlite3": "^3.1.1",
+    "fs": "^0.0.2"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node server.js"
+  },
+  "author": "Andrew Henderson",
+  "license": "BSD-3-Clause"
+}
