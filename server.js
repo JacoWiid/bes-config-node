@@ -5,21 +5,28 @@ var sqlite3 = require('sqlite3').verbose();
 var bodyParser = require('body-parser');
 var diskspace = require('diskspace');
 
+var sys = require('sys');
+var exec = require('child_process').exec;
+function puts(error, stdout, stderr) {}
+
 var app = express();
-var htmlRoot = __dirname + '/public/'
+var htmlRoot = __dirname + '/public/';
+/*var besRoot = "/home/ubuntu/bes/";*/
+var besRoot = "../bes/";
 
 var upload = multer({ dest: __dirname + '/uploads/' });
-var file = "games.db";
+var file = besRoot + "games.db";
 var exists = fs.existsSync(file);
 var db = new sqlite3.Database(file);
 
-var baseROMPath = "./roms/";
+var baseROMPath = besRoot + "roms/";
 
 app.use(bodyParser.urlencoded({ extended: false}));
 app.use(bodyParser.json());
 
 /* serves main page */
 app.get("/", function(req, res) {
+console.log("Serving index page");
   res.sendFile(htmlRoot + 'index.html')
 }); /* end index.html */
 
@@ -45,6 +52,8 @@ app.post("/gamepadSaveData", function(req, res) {
 
   db.all(query, function(err, rows) {
     if (err) throw err;
+
+    exec("sync", puts);
 
     res.setHeader('Content-Type', 'application/json');
     res.send("{ \"Update\":\"true\" }");
@@ -83,7 +92,7 @@ app.post("/gamepadLoadData", function(req, res) {
 }); /* end gamepadLoadData */
 
 app.post("/arRequestUsage", function(req, res) {
-  diskspace.check('/dev/sda1', function(err, total, free, status) {
+  diskspace.check('/dev/mmcblk0p1', function(err, total, free, status) {
     var parsed;
     var response = "{ \"TotalSize\":\"" + total + "\", \"FreeSize\":\"";
     response += free + "\" }";
@@ -125,6 +134,7 @@ app.post("/arAddROM", upload.single('romFile'), function(req, res) {
 
     db.all(query, function(err, rows) {
       /*if (err) throw err;*/
+      exec("sync", puts);
       res.send("{\"Status\":\"success\"}");
     }); /* end db.all() */
   } /* end if */
@@ -176,7 +186,8 @@ app.post("/arRemoveROM", function(req, res) {
       path += "gb/";
     path += req.body.RomFile;
     fs.unlinkSync(path);
- 
+
+    exec("sync", puts); 
     res.setHeader('Content-Type', 'application/json');
     res.send("{\"removed\":\"true\"}");
   }); /* end db.all() */
@@ -202,6 +213,8 @@ app.post("/editSubmitData", function(req, res) {
 
   db.all(query, function(err, rows) {
     if (err) throw err;
+
+    exec("sync", puts);
     res.setHeader('Content-Type', 'application/json');
     res.send("{\"updated\":\"true\"}");
   }); /* end db.all() */
@@ -315,8 +328,9 @@ app.get(/^(.+)$/, function(req, res){
   res.sendFile( htmlRoot + req.params[0]); 
 });
 
-var port = process.env.PORT || 5000;
+var port = process.env.PORT || 80;
 app.listen(port, function() {
   console.log("Listening on " + port);
 });
+
 

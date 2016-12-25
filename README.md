@@ -1,6 +1,13 @@
 # bes-config-node
 Beagle Entertainment System Node.js-based configuration interface
 
+Requires nodejs v0.12.x, which you can get via:
+
+$ curl -sL https://deb.nodesource.com/setup_0.12 | sudo bash -
+$ sudo apt-get install -y nodejs
+$ sudo ln -s /usr/bin/nodejs /usr/bin/node
+
+
 Requires the following Node modules to be installed:
 
 1. body-parser
